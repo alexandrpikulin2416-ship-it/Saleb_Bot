@@ -1,52 +1,114 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Salem WebApp</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Salem — Loading</title>
   <style>
-    body{margin:0;background:#0f1220;color:#f5f3ff;font:16px/1.45 Inter,system-ui,Segoe UI,Roboto;}
-    .wrap{max-width:980px;margin:0 auto;padding:20px;display:flex;flex-direction:column;gap:16px}
-    .hero{display:flex;gap:16px;align-items:center;background:#181a2e;border:1px solid #2c2f55;border-radius:16px;padding:16px}
-    .hero img{width:140px;height:140px;object-fit:cover;border-radius:12px}
-    .btn{background:linear-gradient(180deg,#8b5cf6,#a78bfa);border:0;border-radius:12px;padding:12px 16px;font-weight:700;color:#0b0720;cursor:pointer}
-    .card{background:#181a2e;border:1px solid #2c2f55;border-radius:16px;padding:14px}
+    :root{
+      --bg1:#0A0E1F;                 /* фон-градиент, ты дал */
+      --bg2:#080D1C;
+      --track:#121620;               /* неактивная полоса */
+      --fill1:#1D56E4;               /* активный градиент */
+      --fill2:#2390F3;
+      --fill3:#16DBF0;
+    }
+    html,body{margin:0;height:100%;background:linear-gradient(180deg,var(--bg1),var(--bg2));font:16px/1.3 Inter,system-ui;color:#EAF2FF}
+    .screen{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+    /* фоновые слои */
+    .bg{position:absolute;inset:0;pointer-events:none}
+    .bg::before, .bg::after{
+      content:"";position:absolute;border-radius:32px;filter:blur(0.0001px);
+    }
+    .bg::before{ /* левое синее свечение */
+      left:-40px;top:-40px;width:360px;height:500px;
+      background:url("assets/glow-left.png") no-repeat 0 0/contain;
+      opacity:.9;
+    }
+    .bg::after{ /* правое фиолетовое свечение */
+      right:-40px;top:-60px;width:300px;height:560px;
+      background:url("assets/glow-right.png") no-repeat 0 0/contain;
+      opacity:.9;
+    }
+    .castle{
+      position:absolute;inset:0;
+      background:url("assets/bg-castle.png") center/cover no-repeat;
+      opacity:.5;
+    }
+    .wrap{width:390px;max-width:94vw;padding:24px 20px 28px;display:flex;flex-direction:column;gap:18px;align-items:center}
+
+    .cat{
+      width:min(72%,280px);max-width:320px;object-fit:contain;filter:drop-shadow(0 8px 24px rgba(22,219,240,.25));
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+    .title{font-weight:700;letter-spacing:.2px;text-shadow:0 2px 24px rgba(35,144,243,.35)}
+    .bar{
+      width:100%;height:12px;border-radius:12px;background:var(--track);
+      box-shadow:-5px 2px 4px 0 #8ACAFF inset, 0 -1px 1.5px 0 rgba(79,205,255,.69) inset;
+      position:relative;overflow:hidden;
+    }
+    .fill{
+      position:absolute;inset:0 auto 0 0;width:0%;
+      background:linear-gradient(90deg,var(--fill1) 50.48%, var(--fill2) 75.24%, var(--fill3) 100%);
+      border-radius:12px;box-shadow:0 0 18px rgba(35,144,243,.65);
+      animation: load 4s ease forwards;
+    }
+    @keyframes load{to{width:100%}}
+
+    /* бегущий блик */
+    .sheen{
+      position:absolute;top:-50%;bottom:-50%;width:80px;left:-100px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
+      filter:blur(6px);mix-blend-mode:screen;
+      animation: sheen 1.6s linear infinite .4s;
+    }
+    @keyframes sheen{to{transform:translateX(420px)}}
+
+    /* следующий экран (привет) */
+    .hello{display:none;place-items:center;text-align:center}
+    .hello.show{display:grid}
+    .btn{background:linear-gradient(180deg,#5f4af6,#7f6bff);color:#0b0720;font-weight:800;border:0;border-radius:14px;padding:12px 18px}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <img src="assets/banner_purple.png" alt="Witchcraft">
-      <div>
-        <h2>Witchcraft Design — iGaming × Magic</h2>
-        <p>Прайс, портфолио и быстрая заявка. <a href="https://www.behance.net/witchcraft_design" target="_blank">Behance</a></p>
-        <button class="btn" id="contact">Написать мне</button>
+  <!-- LOADING -->
+  <section class="screen" id="loading">
+    <div class="bg"></div>
+    <div class="castle"></div>
+    <div class="wrap">
+      <img class="cat" src="assets/cat.png" alt="Salem">
+      <div class="title">Загрузка…</div>
+      <div class="bar">
+        <div class="fill"></div>
+        <div class="sheen"></div>
       </div>
     </div>
+  </section>
 
-    <div class="card">
-      <h3>💠 Прайс</h3>
-      <ul>
-        <li>Логотип — 3000₽</li>
-        <li>Баннер — 1500₽</li>
-        <li>Лендинг — от 7000₽</li>
-      </ul>
-      <button class="btn" id="orderLogo">Заказать логотип</button>
+  <!-- NEXT / HELLO -->
+  <section class="screen hello" id="hello">
+    <div class="wrap" style="gap:14px">
+      <h2 style="margin:0">Привет! 🖤</h2>
+      <p style="opacity:.9;margin:0">Готов показать прайс и принять заявку.</p>
+      <button class="btn" id="openApp">Войти в приложение</button>
     </div>
-  </div>
+  </section>
 
   <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+    // после завершения анимации скрываем лоадер и показываем привет
+    const fill = document.querySelector('.fill');
+    fill.addEventListener('animationend', () => {
+      document.getElementById('loading').style.display='none';
+      document.getElementById('hello').classList.add('show');
+    });
 
-    document.getElementById('contact').onclick = () => {
-      tg.sendData(JSON.stringify({action:'contact_me'}));
-      tg.close();
-    };
-    document.getElementById('orderLogo').onclick = () => {
-      tg.sendData(JSON.stringify({action:'order', item:'logo'}));
-      tg.close();
+    // пример действия — дальше открываешь основное меню/страницу
+    document.getElementById('openApp').onclick = () => {
+      // здесь можешь перейти на другую страницу WebApp или построить UI
+      // location.href = 'menu.html';
+      alert('Открыл бы основное меню 😉');
     };
   </script>
 </body>
